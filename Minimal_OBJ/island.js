@@ -34,6 +34,19 @@ var rotationAngleY = 0;
 // Rotation around X axis (according to mouse movements up and down)
 var rotationAngleX = 0;
 
+var objects = {};
+
+var RenderObject = function(transform, color, shaders, buffer, bufferLength){
+
+	this.transform = transform;
+	this.color = color;
+	this.shader = shader;
+	this.buffer = buffer;
+	this.bufferLength = bufferLength;
+	this.indexBuffer;
+
+}
+
 window.onload = function init()
 {
 	// Get canvas and setup webGL
