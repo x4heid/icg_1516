@@ -3,27 +3,40 @@
 	<head>
 		<meta charset="utf-8"/>
 		<title>WebGL Engine</title>
-		
+
 		<script id="vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 vPosition;
-			
+			attribute vec4 vNormal;
+
 			uniform mat4 modelMatrix;
 			uniform mat4 projectionMatrix;
 			uniform mat4 viewMatrix;
-			
+			uniform vec4 sunPosition;
+			uniform vec4 diffKoeff;
+			uniform vec4 spekKoeff;
+			uniform vec4 ambKoeff;
+			uniform float spekExp;
+			uniform vec4 diffInt;
+			uniform vec4 spekInt;
+			uniform vec4 ambInt;
+			uniform vec4 dimmFac;
+
+			varying vec4 fColor;
+
 			void main()
 			{
+				fColor = vNormal;
 				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vPosition;
 			}
 		</script>
 		<script id="fragment-shader" type="x-shader/x-fragment">
 			precision mediump float;
-			
-			uniform vec4 objectColor;
-			
+
+
+			varying vec4 fColor;
 			void main()
 			{					
-				gl_FragColor = objectColor;
+				gl_FragColor = fColor;
 			}
 		</script>
 		
