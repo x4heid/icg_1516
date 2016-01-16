@@ -61,6 +61,7 @@ var RenderObject = function(transform, color, shaders, buffer, bufferLength, nor
 	this.spekKoeff = spekKoeff;
 	this.ambKoeff = ambKoeff;
 	this.spekExp = spekExp;
+	this.normalMatrix = transform.inverse().transpose();
 
 };
 
