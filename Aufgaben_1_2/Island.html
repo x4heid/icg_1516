@@ -8,25 +8,35 @@
 			attribute vec4 vPosition;
 			attribute vec4 vNormal;
 
+			uniform vec4 objectColor;
 			uniform mat4 modelMatrix;
 			uniform mat4 projectionMatrix;
 			uniform mat4 viewMatrix;
 			uniform vec4 sunPosition;
-			uniform vec4 diffKoeff;
-			uniform vec4 spekKoeff;
-			uniform vec4 ambKoeff;
+			uniform vec3 diffKoeff;
+			uniform vec3 spekKoeff;
+			uniform vec3 ambKoeff;
 			uniform float spekExp;
-			uniform vec4 diffInt;
-			uniform vec4 spekInt;
-			uniform vec4 ambInt;
-			uniform vec4 dimmFac;
+			uniform vec3 diffInt;
+			uniform vec3 spekInt;
+			uniform vec3 ambInt;
+			uniform vec3 dimmFac;
 			uniform mat4 normMatrix;
 
 			varying vec4 fColor;
 
 			void main()
 			{
-				fColor = vNormal;
+				// Calculations for Phong-variables
+				vec3 lightDirect = normalize((viewMatrix * modelMatrix * vPosition).xyz + (viewMatrix * sunPosition).xyz);
+				vec4 transNormal = normMatrix * vNormal;
+				float dotNL = max(0.0, dot(transNormal.xyz, lightDirect));
+
+				vec4 reflectDirect = reflect(vec4(lightDirect, 1.0), transNormal);
+				float dotRV = pow(max(0.0, dot(reflectDirect.xyz, normalize(-(viewMatrix * modelMatrix * vPosition).xyz))), spekExp);
+
+				vec4 phong = vec4(ambInt * objectColor.xyz + dimmFac * (diffInt * objectColor.xyz * dotNL + spekInt * objectColor.xyz * dotRV), 1.0);
+				fColor = phong;
 				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vPosition;
 			}
 		</script>

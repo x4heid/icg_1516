@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title>WebGL Engine</title>
+
+		<script id="vertex-shader" type="x-shader/x-vertex">
+			attribute vec4 vPosition;
+			attribute vec4 vNormal;
+
+			uniform mat4 modelMatrix;
+			uniform mat4 projectionMatrix;
+			uniform mat4 viewMatrix;
+
+			varying vec4 fNormal;
+			varying mat4 fModelMat;
+			varying mat4 fProjectionMat;
+			varying mat4 fViewMat;
+
+			void main()
+			{
+				fModelMat = modelMatrix;
+				fProjectionMat = projectionMatrix;
+				fViewMat = viewMatrix;
+				fNormal = vNormal;
+				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vPosition;
+			}
+		</script>
+		<script id="fragment-shader" type="x-shader/x-fragment">
+			precision mediump float;
+
+			uniform vec4 objectColor;
+
+			uniform vec4 sunPosition;
+			uniform vec3 diffKoeff;
+			uniform vec3 spekKoeff;
+			uniform vec3 ambKoeff;
+			uniform float spekExp;
+			uniform vec3 diffInt;
+			uniform vec3 spekInt;
+			uniform vec3 ambInt;
+			uniform vec3 dimmFac;
+			uniform mat4 normMatrix;
+
+			varying vec4 fNormal;
+			varying mat4 fModelMat;
+			varying mat4 fProjectionMat;
+			varying mat4 fViewMat;
+
+			void main()
+			{
+				// Calculations for Phong-variables
+				vec3 lightDirect = normalize((fViewMat * fModelMat * gl_FragCoord).xyz + (fViewMat * sunPosition).xyz);
+				vec4 transNormal = normMatrix * fNormal;
+				float dotNL = max(0.0, dot(transNormal.xyz, lightDirect));
+
+				vec4 reflectDirect = reflect(vec4(lightDirect, 1.0), transNormal);
+				float dotRV = pow(max(0.0, dot(reflectDirect.xyz, normalize(-(fViewMat * fModelMat * gl_FragCoord).xyz))), spekExp);
+
+				vec4 phong = vec4(ambInt * objectColor.xyz + dimmFac * (diffInt * objectColor.xyz * dotNL + spekInt * objectColor.xyz * dotRV), 1.0);
+				gl_FragColor = phong;
+			}
+		</script>
+		
+		<script type="text/plain" id="palmtreelog">
+			# Blender v2.76 (sub 0) OBJ File: ''
+			# www.blender.org
+			# mtllib palmtreelog.mtl
+			o Cube.001
+			v 0.264899 1.495833 -0.264899
+			v 0.264899 1.495833 0.264899
+			v -0.264899 1.495833 0.264899
+			v -0.264899 1.495833 -0.264899
+			v 0.392220 2.025630 -0.437526
+			v 0.392220 2.025630 0.437527
+			v -0.392220 2.025630 0.437526
+			v -0.392220 2.025630 -0.437527
+			v 0.264899 1.072079 -0.264899
+			v 0.264899 1.072079 0.264899
+			v -0.264899 1.072079 0.264899
+			v -0.264899 1.072079 -0.264899
+			v 0.392220 1.601876 -0.437526
+			v 0.392220 1.601876 0.437527
+			v -0.392220 1.601876 0.437526
+			v -0.392220 1.601876 -0.437527
+			v 0.264899 0.588075 -0.264899
+			v 0.264899 0.588075 0.264899
+			v -0.264899 0.588075 0.264899
+			v -0.264899 0.588075 -0.264899
+			v 0.392220 1.117872 -0.437526
+			v 0.392220 1.117872 0.437527
+			v -0.392220 1.117872 0.437526
+			v -0.392220 1.117872 -0.437527
+			v 0.264899 0.177178 -0.264899
+			v 0.264899 0.177178 0.264899
+			v -0.264899 0.177178 0.264899
+			v -0.264899 0.177178 -0.264899
+			v 0.392220 0.706975 -0.437526
+			v 0.392220 0.706975 0.437527
+			v -0.392220 0.706975 0.437526
+			v -0.392220 0.706975 -0.437527
+			v 0.264899 -0.264899 -0.264899
+			v 0.264899 -0.264899 0.264899
+			v -0.264899 -0.264899 0.264899
+			v -0.264899 -0.264899 -0.264899
+			v 0.392220 0.264899 -0.437526
+			v 0.392220 0.264899 0.437527
+			v -0.392220 0.264899 0.437526
+			v -0.392220 0.264899 -0.437527
+			vn 0.000000 -1.000000 0.000000
+			vn 0.000000 1.000000 0.000000
+			vn 0.972300 -0.233700 0.000000
+			vn -0.000000 -0.309800 0.950800
+			vn -0.972300 -0.233700 -0.000000
+			vn 0.000000 -0.309800 -0.950800
+			usemtl None
+			s off
+			f 1//1 2//1 3//1 4//1
+			f 5//2 8//2 7//2 6//2
+			f 1//3 5//3 6//3 2//3
+			f 2//4 6//4 7//4 3//4
+			f 3//5 7//5 8//5 4//5
+			f 5//6 1//6 4//6 8//6
+			f 9//1 10//1 11//1 12//1
+			f 13//2 16//2 15//2 14//2
+			f 9//3 13//3 14//3 10//3
+			f 10//4 14//4 15//4 11//4
+			f 11//5 15//5 16//5 12//5
+			f 13//6 9//6 12//6 16//6
+			f 17//1 18//1 19//1 20//1
+			f 21//2 24//2 23//2 22//2
+			f 17//3 21//3 22//3 18//3
+			f 18//4 22//4 23//4 19//4
+			f 19//5 23//5 24//5 20//5
+			f 21//6 17//6 20//6 24//6
+			f 25//1 26//1 27//1 28//1
+			f 29//2 32//2 31//2 30//2
+			f 25//3 29//3 30//3 26//3
+			f 26//4 30//4 31//4 27//4
+			f 27//5 31//5 32//5 28//5
+			f 29//6 25//6 28//6 32//6
+			f 33//1 34//1 35//1 36//1
+			f 37//2 40//2 39//2 38//2
+			f 33//3 37//3 38//3 34//3
+			f 34//4 38//4 39//4 35//4
+			f 35//5 39//5 40//5 36//5
+			f 37//6 33//6 36//6 40//6
+		</script>
+		
+		<script type="text/plain" id="palmtreeleaves">
+			# Blender v2.76 (sub 0) OBJ File: ''
+			# www.blender.org
+			# mtllib palmtreeleaves.mtl
+			o Plane
+			v -0.110960 2.259751 -0.208215
+			v -1.055704 1.730156 0.889920
+			v 1.147070 1.654218 -1.016841
+			v 0.244244 2.268420 0.202029
+			v -0.164189 2.253371 0.137965
+			v 1.000000 1.723776 1.000000
+			v -1.062520 1.647838 -1.057659
+			v 0.219022 2.262041 -0.246247
+			vt 0.186290 0.497372
+			vt 0.186290 0.999957
+			vt 0.000043 0.524897
+			vt 0.038387 0.000043
+			vt 0.000000 0.000000
+			vn -0.029700 0.999500 -0.007100
+			vn 0.009200 0.999500 -0.029100
+			usemtl None
+			s off
+			f 5/1/1 6/2/1 8/3/1 7/4/1
+			usemtl None
+			f 1/5/2 2/5/2 4/5/2 3/5/2
+		</script>
+		
+		<script type="text/plain" id="island">
+			# Blender v2.76 (sub 0) OBJ File: ''
+			# www.blender.org
+			# mtllib island.mtl
+			o Plane.001_Plane.002
+			v -3.960703 0.000000 7.960703
+			v 7.960703 0.000000 7.960703
+			v -3.960703 0.000000 -3.960703
+			v 7.960703 0.000000 -3.960703
+			vn 0.000000 1.000000 0.000000
+			usemtl None
+			s off
+			f 1//1 2//1 4//1 3//1
+		</script>
+		
+		<!-- low poly water -->
+		<script type="text/plain" id="water">
+			# Blender v2.76 (sub 0) OBJ File: ''
+			# www.blender.org
+			# mtllib water.mtl
+			o Plane.002_Plane.003
+			v -12.567941 -0.100000 16.567940
+			v 16.567940 -0.100000 16.567940
+			v -12.567941 -0.100000 -12.567941
+			v 16.567940 -0.100000 -12.567941
+			vn 0.000000 1.000000 0.000000
+			usemtl None
+			s off
+			f 1//1 2//1 4//1 3//1
+		</script>
+
+		<script type="text/javascript" src="../Common/webgl-utils.js">
+		</script>
+		<script type="text/javascript" src="../Common/initShaders.js">
+		</script>
+		<script type="text/javascript" src="../Common/gl-matrix.js">
+		</script>
+		<script type="text/javascript" src="../Common/webgl-obj-loader.js">
+		</script>
+		<script type="text/javascript" src="island.js">
+		</script>
+	</head>
+	<body>
+		<canvas id="gl-canvas" width="512" height="512">
+			If you see this, your browser doesn't support WebGL.
+		</canvas>
+		
+	</body>
+</html>

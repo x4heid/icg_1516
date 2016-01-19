@@ -61,8 +61,8 @@ var RenderObject = function(transform, color, shaders, buffer, bufferLength, nor
 	this.spekKoeff = spekKoeff;
 	this.ambKoeff = ambKoeff;
 	this.spekExp = spekExp;
-	this.normalMatrix = transform.inverse().transpose();
-
+	this.normMatrix = mat4.create();
+	this.normMatrix = mat4.transpose(this.normMatrix, mat4.invert(this.normMatrix, (mat4.multiply(this.normMatrix, viewMatrix, this.transform))));
 };
 
 window.onload = function init()
@@ -86,7 +86,7 @@ window.onload = function init()
 	defaultProgram = initShaders(gl, "vertex-shader", "fragment-shader");
 
 
-	sun = new LightObject(vec4.fromValues(2, 7, 10, 1), vec3.fromValues(1.1, 1.1, 1.1), vec3.fromValues(1.1, 1.1, 1.1), vec3.fromValues(0.5, 0.5, 0.5), 2);
+	sun = new LightObject(vec4.fromValues(-10, 20, -10, 1), vec3.fromValues(1, 1, 1), vec3.fromValues(1.1, 1.1, 1.1), vec3.fromValues(1, 1, 1));
 
 	// Create water
 	var waterString = document.getElementById("water").innerHTML;
@@ -94,7 +94,7 @@ window.onload = function init()
 	OBJ.initMeshBuffers(gl, waterMesh);
 
 	var waterObject = new RenderObject(mat4.create(), vec4.fromValues(0, 0, 1, 1), defaultProgram, waterMesh.vertexBuffer,
-		waterMesh.indexBuffer.numItems, waterMesh.normalBuffer, vec3.fromValues(0.9, 0.9, 0.9), vec3.fromValues(0.9, 0.9, 0.9), vec3.fromValues(0.9, 0.9, 0.9), 2);
+		waterMesh.indexBuffer.numItems, waterMesh.normalBuffer, vec3.fromValues(0.2, 0.2, 0.2), vec3.fromValues(0.2, 0.2, 0.2), vec3.fromValues(0.2, 0.2, 0.2), 2);
 	mat4.translate(waterObject.transform, waterObject.transform, vec3.fromValues(0, 0, 0));
 	waterObject.indexBuffer = waterMesh.indexBuffer;
 
@@ -107,7 +107,7 @@ window.onload = function init()
 	OBJ.initMeshBuffers(gl, islandMesh);
 	
 	var islandObject = new RenderObject(mat4.create(), vec4.fromValues(1, 1, 0, 1), defaultProgram, islandMesh.vertexBuffer,
-		islandMesh.indexBuffer.numItems, islandMesh.normalBuffer, vec3.fromValues(0.9, 0.9, 0.9), vec3.fromValues(0.9, 0.9, 0.9), vec3.fromValues(0.9, 0.9, 0.9), 2);
+		islandMesh.indexBuffer.numItems, islandMesh.normalBuffer, vec3.fromValues(0.2, 0.2, 0.2), vec3.fromValues(0.2, 0.2, 0.2), vec3.fromValues(0.2, 0.2, 0.2), 2);
 	mat4.translate(islandObject.transform, islandObject.transform, vec3.fromValues(0, 0, 0));
 	islandObject.indexBuffer = islandMesh.indexBuffer;
 
@@ -121,7 +121,7 @@ window.onload = function init()
 	OBJ.initMeshBuffers(gl, palmtreelogMesh);
 	
 	var palmtreeLogObject = new RenderObject(mat4.create(), vec4.fromValues(0.25, 0.125, 0,1), defaultProgram, palmtreelogMesh.vertexBuffer,
-		palmtreelogMesh.indexBuffer.numItems, palmtreelogMesh.normalBuffer, vec3.fromValues(0.9, 0.9, 0.9), vec3.fromValues(0.9, 0.9, 0.9), vec3.fromValues(0.9, 0.9, 0.9), 2);
+		palmtreelogMesh.indexBuffer.numItems, palmtreelogMesh.normalBuffer, vec3.fromValues(0.3, 0.3, 0.3), vec3.fromValues(0.2, 0.2, 0.2), vec3.fromValues(0.2, 0.2, 0.2), 1);
 	mat4.translate(palmtreeLogObject.transform, palmtreeLogObject.transform, vec3.fromValues(0, 0, 0));
 	palmtreeLogObject.indexBuffer = palmtreelogMesh.indexBuffer;
 
@@ -134,7 +134,7 @@ window.onload = function init()
 	OBJ.initMeshBuffers(gl, palmtreeleavesMesh);
 	
 	var palmtreeleavesObject = new RenderObject(mat4.create(), vec4.fromValues(0,1,0,1), defaultProgram, palmtreeleavesMesh.vertexBuffer,
-		palmtreeleavesMesh.indexBuffer.numItems, palmtreeleavesMesh.normalBuffer, vec3.fromValues(0.9, 0.9, 0.9), vec3.fromValues(0.9, 0.9, 0.9), vec3.fromValues(0.9, 0.9, 0.9), 2);
+		palmtreeleavesMesh.indexBuffer.numItems, palmtreeleavesMesh.normalBuffer, vec3.fromValues(0.2, 0.2, 0.2), vec3.fromValues(0.2, 0.2, 0.2), vec3.fromValues(0.2, 0.2, 0.2), 2);
 	mat4.translate(palmtreeleavesObject.transform, palmtreeleavesObject.transform, vec3.fromValues(0, 0, 0));
 	palmtreeleavesObject.indexBuffer = palmtreeleavesMesh.indexBuffer;
 
@@ -191,6 +191,7 @@ function render()
 		spekIntLoc = gl.getUniformLocation(object.shader, "spekInt");
 		ambIntLoc = gl.getUniformLocation(object.shader, "ambInt");
 		dimmFacLoc = gl.getUniformLocation(object.shader, "dimmFac");
+		normMatLoc = gl.getUniformLocation(object.shader, "normMatrix");
 
 		var vPosition = gl.getAttribLocation(object.shader, "vPosition");
 		gl.bindBuffer(gl.ARRAY_BUFFER, object.buffer);
@@ -215,6 +216,7 @@ function render()
 		gl.uniform3fv(spekIntLoc, sun.spekInt);
 		gl.uniform3fv(dimmFacLoc, sun.dimmFac);
 		gl.uniform3fv(ambIntLoc, ambInt);
+		gl.uniformMatrix4fv(normMatLoc, false, object.normMatrix);
 
 
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBuffer);
